@@ -1,0 +1,45 @@
+import serial
+import time #retardo en tiempo fijo antes de pedir los datos
+import math
+
+ser = serial.Serial('COM7',baudrate = 9600, timeout = 1)
+time.sleep(3) #time delay de 3 segundos para no leer datos vacíos
+def getValues():
+
+    #ser.write(b'g')
+    arduinoData=ser.readline().decode('ascii')
+    return arduinoData
+
+try:
+    while(1):
+        #userInput = input('Get data point?')
+        #if (userInput == 'y'):
+            a = getValues()
+            angle1 = a[0:6] #se obtiene el número
+            angle2 = a[7:13]
+            #K = 0.1411*N1 + 9.859  #Indicador de potencia a turbinas K = [0;100]
+
+            angle1x=float(angle1) #pasamos de string a float
+            angle2x=float(angle2)
+            print("Roll: ", angle1x," Pitch: ", angle2x)
+            Dx = 208
+            Dy = 110
+            cos1 = math.cos((angle1x*math.pi)/180)
+            sen1 = math.sin((angle1x*math.pi)/180)
+            cos2 = math.cos((angle2x*math.pi)/180)
+            sen2 = math.sin((angle2x*math.pi)/180)
+            ha = Dy*sen1 + Dx*sen2
+            hb = Dx*sen2 - Dy*sen1
+            hc = -ha
+            hd = -hb
+            Ka = 0.8*ha + 1500
+            Kb = -0.8*hb + 1500
+            Kc = 0.8*hc + 1500
+            Kd = -0.8*hd + 1500
+
+            print("Ka:",int(Ka)," ,Kb:",int(Kb)," ,Kc:",int(Kc)," ,Kd:",int(Kd))
+            
+except KeyboardInterrupt:
+  print("Ctl C pressed - ending program")
+  #for j in range (4,12)
+      #obj.setMS(i,k)
